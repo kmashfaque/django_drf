@@ -35,22 +35,25 @@ def studentsView(request):
         print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET','PUT'])
-def studentDetailView(resquest, pk):
+@api_view(['GET','PUT','DELETE'])
+def studentDetailView(request, pk):
     try:
         student = Student.objects.get(pk=pk)
     except Student.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
-    if resquest.method == 'GET':
+    if request.method == 'GET':
         serializer = StudentSerializer(student)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    elif resquest.method == 'PUT':
-        serializer = StudentSerializer(student, data=resquest.data)
+    elif request.method == 'PUT':
+        serializer = StudentSerializer(student, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
         
+    elif request.method == "DELETE":
+        student.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
